@@ -5,18 +5,15 @@ from scipy.fftpack import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from Graph import *
+from fftFunctions import wav2data
 import sys
 
 
 class SignalsWidget(QWidget):
     def __init__(self, filePath):
         super().__init__()
-        self.wavClass = wavio.read("vignesh.wav")
-        self.data = self.wavClass.data[:, 0]
-        self.rate = self.wavClass.rate
-        self.length = len(self.data)
-        self.duration = int(self.length/self.rate)
-        self.createSignals()
+        self.wavClass = wav2data(filePath)
+        self.createSignals(self.wavClass)
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.timeDomainSignal)
         self.layout.addWidget(self.freqDomainSignal)
@@ -24,19 +21,11 @@ class SignalsWidget(QWidget):
         self.show()
         
     
-    def createSignals(self):
-        self.time = np.linspace(0, self.duration, self.length)
+    def createSignals(self, wav):
         self.timeDomainSignal = GraphWidget()
-        self.timeDomainSignal.setPlot(self.time, self.data)
-        
-        
-        self.freq = np.linspace(0, self.rate/2, int(self.length/2))
-        self.fftArray = fft(self.data)
-        self.fftArrayAbs = np.abs(self.fftArray)
-        self.fftArrayNormalized = (self.fftArrayAbs * 2 / self.length)
-        self.fftArrayNormalized = self.fftArrayNormalized[:self.length//2]
+        self.timeDomainSignal.setPlot(wav.time, wav.data)
         self.freqDomainSignal = GraphWidget()
-        self.freqDomainSignal.setPlot(self.freq, self.fftArrayNormalized)
+        self.freqDomainSignal.setPlot(wav.freq, wav.fftArrayNormalized)
         
 
 
@@ -44,6 +33,6 @@ class SignalsWidget(QWidget):
 if __name__ == "__main__":
 
     app = QApplication(sys.argv)
-    win = SignalsWidget("ChillingMusic.wav")
+    win = SignalsWidget("wavFiles/ChillingMusic.wav")
     sys.exit(app.exec_())
     
