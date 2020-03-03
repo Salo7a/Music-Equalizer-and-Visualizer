@@ -17,12 +17,7 @@ def hhmmss(ms):
     return ("%d:%02d:%02d" % (h, m, s)) if h else ("%d:%02d" % (m, s))
 
 
-class ViewerWindow(QMainWindow):
-    state = pyqtSignal(bool)
 
-    def closeEvent(self, e):
-        # Emit the window state, to update the viewer toggle button.
-        self.state.emit(False)
 
 
 class PlaylistModel(QAbstractListModel):
@@ -49,22 +44,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.player.error.connect(self.erroralert)
         self.player.play()
 
-        # Setup the playlist.
-        self.playlist = QMediaPlaylist()
-        self.player.setPlaylist(self.playlist)
-
         # Connect control buttons/slides for media player.
         self.playButton.pressed.connect(self.player.play)
         self.stopButton.pressed.connect(self.player.stop)
         # self.equalizerButton.pressed.connect()
-        # self.showButton.pressed.connect(self)
+        # self.showButton.toggled.connect(self.toggle_viewer())
+
         self.volumeSlider.valueChanged.connect(self.player.setVolume)
+        self.timeSlider.valueChanged.connect(self.player.setPosition)
 
-        # self.viewButton.toggled.connect(self.toggle_viewer)
-        # self.viewer.state.connect(self.viewButton.setChecked)
-
-        # self.previousButton.pressed.connect(self.playlist.previous)
-        # self.nextButton.pressed.connect(self.playlist.next)
+        # Setup the playlist.
+        self.playlist = QMediaPlaylist()
+        self.player.setPlaylist(self.playlist)
 
         self.model = PlaylistModel(self.playlist)
         self.listWidget.setModel(self.model)
@@ -74,10 +65,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.player.durationChanged.connect(self.update_duration)
         self.player.positionChanged.connect(self.update_position)
-        self.timeSlider.valueChanged.connect(self.player.setPosition)
 
-        self.open_file_action.triggered.connect(self.open_file)
-
+        self.actionOpen_File.triggered.connect(self.open_file)
         self.setAcceptDrops(True)
 
         self.show()
@@ -141,11 +130,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ix = self.model.index(i)
             self.listWidget.setCurrentIndex(ix)
 
-    def toggle_viewer(self, state):
-        if state:
-            self.viewer.show()
-        else:
-            self.viewer.hide()
 
     def erroralert(self, *args):
         print(args)
