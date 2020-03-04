@@ -20,7 +20,7 @@ class GraphWidget(pg.PlotWidget):
         self.position = 0
         self.width = self.size().width()
         self.height = self.size().height()
-        self.curve = self.plotItem
+        self.curve = self.plot(self.x, self.y, pen=(42, 130, 218), name=self.name)
         self.i = 0
 
     def setPlot(self, x, y, name="", pen="w"):
@@ -94,3 +94,9 @@ class GraphWidget(pg.PlotWidget):
             while per < self.position:
                 self.curve.getViewBox().translateBy(x=-((1 / self.sr) * 1000) * (len(self.data) / 100))
                 self.position -= 1
+
+    def GetCurve(self):
+        return self.curve
+
+    def GetViewBox(self):
+        return self.curve.getViewBox()
