@@ -17,9 +17,6 @@ def hhmmss(ms):
     return ("%d:%02d:%02d" % (h, m, s)) if h else ("%d:%02d" % (m, s))
 
 
-
-
-
 class PlaylistModel(QAbstractListModel):
     def __init__(self, playlist, *args, **kwargs):
         super(PlaylistModel, self).__init__(*args, **kwargs)
@@ -68,6 +65,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.actionOpen_File.triggered.connect(self.open_file)
         self.setAcceptDrops(True)
+
+        self.graphWidget.setBackground((53, 53, 53))
+        self.graphWidget.GetViewBox().setMenuEnabled(False)
+        self.graphWidget.GetViewBox().setMouseEnabled(x=False, y=False)
 
         self.show()
 
@@ -129,7 +130,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if i > -1:
             ix = self.model.index(i)
             self.listWidget.setCurrentIndex(ix)
-
 
     def erroralert(self, *args):
         print(args)

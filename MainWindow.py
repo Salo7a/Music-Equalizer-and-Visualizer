@@ -8,6 +8,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import Qt
 
 
 class Ui_MainWindow(object):
@@ -32,6 +33,7 @@ class Ui_MainWindow(object):
         self.listWidget.setAlternatingRowColors(True)
         self.listWidget.setUniformItemSizes(True)
         self.listWidget.setObjectName("listWidget")
+        self.listWidget.setMaximumWidth(300)
         self.horizontalLayout_3.addWidget(self.listWidget)
         self.graphWidget = GraphWidget()
         self.graphWidget.setObjectName("graphWidget")
