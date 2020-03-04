@@ -43,12 +43,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.player.error.connect(self.erroralert)
         self.player.play()
-
+        self.hideList = False
         # Connect control buttons/slides for media player.
         self.playButton.pressed.connect(self.player.play)
         self.stopButton.pressed.connect(self.player.stop)
+        self.showButton.pressed.connect(self.playlist_toggle)
         # self.equalizerButton.pressed.connect()
-        # self.showButton.toggled.connect(self.toggle_viewer())
 
         self.volumeSlider.valueChanged.connect(self.player.setVolume)
         self.timeSlider.valueChanged.connect(self.player.setPosition)
@@ -59,6 +59,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.model = PlaylistModel(self.playlist)
         self.listWidget.setModel(self.model)
+        self.listWidget.setFixedWidth(200)
         self.playlist.currentIndexChanged.connect(self.playlist_position_changed)
         selection_model = self.listWidget.selectionModel()
         selection_model.selectionChanged.connect(self.playlist_selection_changed)
@@ -74,6 +75,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def dragEnterEvent(self, e):
         if e.mimeData().hasUrls():
             e.acceptProposedAction()
+
+    def playlist_toggle(self):
+        if self.hideList == True:
+            self.listWidget.setFixedWidth(200)
+            self.listWidget.setProperty("showDropIndicator", False)
+        else:
+            self.listWidget.setFixedWidth(0)
+            self.hideList = not (self.hideList)
+            self.listWidget.setProperty("showDropIndicator", True)
 
     def dropEvent(self, e):
         for url in e.mimeData().urls():
