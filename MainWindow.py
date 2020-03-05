@@ -8,6 +8,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import Qt
 
 
 class Ui_MainWindow(object):
@@ -26,7 +27,13 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.listWidget.sizePolicy().hasHeightForWidth())
         self.listWidget.setSizePolicy(sizePolicy)
+        self.listWidget = QtWidgets.QListView(self.centralwidget)
+        self.listWidget.setAcceptDrops(True)
+        self.listWidget.setProperty("showDropIndicator", False)
+        self.listWidget.setAlternatingRowColors(True)
+        self.listWidget.setUniformItemSizes(True)
         self.listWidget.setObjectName("listWidget")
+        self.listWidget.setMaximumWidth(500)
         self.horizontalLayout_3.addWidget(self.listWidget)
         self.graphWidget = GraphWidget()
         self.graphWidget.setObjectName("graphWidget")
@@ -37,10 +44,10 @@ class Ui_MainWindow(object):
         self.currentTimeLabel = QtWidgets.QLabel(self.centralwidget)
         self.currentTimeLabel.setObjectName("currentTimeLabel")
         self.horizontalLayout.addWidget(self.currentTimeLabel)
-        self.horizontalSlider = QtWidgets.QSlider(self.centralwidget)
-        self.horizontalSlider.setOrientation(QtCore.Qt.Horizontal)
-        self.horizontalSlider.setObjectName("horizontalSlider")
-        self.horizontalLayout.addWidget(self.horizontalSlider)
+        self.timeSlider = QtWidgets.QSlider(self.centralwidget)
+        self.timeSlider.setOrientation(QtCore.Qt.Horizontal)
+        self.timeSlider.setObjectName("horizontalSlider")
+        self.horizontalLayout.addWidget(self.timeSlider)
         self.totalTimeLabel = QtWidgets.QLabel(self.centralwidget)
         self.totalTimeLabel.setObjectName("totalTimeLabel")
         self.horizontalLayout.addWidget(self.totalTimeLabel)
@@ -48,6 +55,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.showButton = QtWidgets.QPushButton(self.centralwidget)
+
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -100,6 +108,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.addWidget(self.volumeButton)
         self.volumeSlider = QtWidgets.QSlider(self.centralwidget)
         self.volumeSlider.setEnabled(True)
+        self.volumeSlider.setMaximum(100)
+        self.volumeSlider.setProperty("value", 100)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -129,7 +139,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.currentTimeLabel.setText(_translate("MainWindow", "0:00"))
         self.totalTimeLabel.setText(_translate("MainWindow", "0:00"))
-        self.showButton.setText(_translate("MainWindow", "Show"))
+        self.showButton.setText(_translate("MainWindow", "Hide"))
         self.playButton.setText(_translate("MainWindow", "Play"))
         self.stopButton.setText(_translate("MainWindow", "Stop"))
         self.equalizerButton.setText(_translate("MainWindow", "Equalizer"))

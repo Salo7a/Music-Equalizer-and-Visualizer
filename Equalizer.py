@@ -70,4 +70,4 @@ class Ui_Sliders(QtWidgets.QWidget):
 
     def retranslateUi(self, Sliders):
         _translate = QtCore.QCoreApplication.translate
-        Sliders.setWindowTitle(_translate("Sliders", "Sliders"))
+        Sliders.setWindowTitle(_translate("Sliders", "Equalizer"))

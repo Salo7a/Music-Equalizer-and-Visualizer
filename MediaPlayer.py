@@ -5,6 +5,13 @@ from PyQt5.QtMultimedia import *
 from PyQt5.QtMultimediaWidgets import *
 
 from MainWindow import Ui_MainWindow
+from Equalizer import Ui_Sliders
+
+
+class Slider(Ui_Sliders, QWidget):
+    def __init__(self):
+        super(Slider, self).__init__()
+        self.setupUi(self)
 
 
 def hhmmss(ms):
@@ -15,14 +22,6 @@ def hhmmss(ms):
     m, r = divmod(r, 60000)
     s, _ = divmod(r, 1000)
     return ("%d:%02d:%02d" % (h, m, s)) if h else ("%d:%02d" % (m, s))
-
-
-class ViewerWindow(QMainWindow):
-    state = pyqtSignal(bool)
-
-    def closeEvent(self, e):
-        # Emit the window state, to update the viewer toggle button.
-        self.state.emit(False)
 
 
 class PlaylistModel(QAbstractListModel):
@@ -48,23 +47,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.player.error.connect(self.erroralert)
         self.player.play()
+        self.isPlaying = False
+        # Connect control buttons/slides for media player.
+        self.playButton.pressed.connect(self.play_pause)
+        self.stopButton.pressed.connect(self.player.stop)
+        self.showButton.pressed.connect(self.playlist_toggle)
+        self.equalizerButton.pressed.connect(self.ShowEqualizer)
+        self.volumeButton.pressed.connect(self.mute)
+
+        self.volumeSlider.valueChanged.connect(self.player.setVolume)
+        self.timeSlider.valueChanged.connect(self.player.setPosition)
 
         # Setup the playlist.
         self.playlist = QMediaPlaylist()
         self.player.setPlaylist(self.playlist)
-
-        # Connect control buttons/slides for media player.
-        self.playButton.pressed.connect(self.player.play)
-        self.stopButton.pressed.connect(self.player.stop)
-        # self.equalizerButton.pressed.connect()
-        # self.showButton.pressed.connect(self)
-        self.volumeSlider.valueChanged.connect(self.player.setVolume)
-
-        # self.viewButton.toggled.connect(self.toggle_viewer)
-        # self.viewer.state.connect(self.viewButton.setChecked)
-
-        # self.previousButton.pressed.connect(self.playlist.previous)
-        # self.nextButton.pressed.connect(self.playlist.next)
 
         self.model = PlaylistModel(self.playlist)
         self.listWidget.setModel(self.model)
@@ -74,17 +70,40 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.player.durationChanged.connect(self.update_duration)
         self.player.positionChanged.connect(self.update_position)
-        self.timeSlider.valueChanged.connect(self.player.setPosition)
 
-        self.open_file_action.triggered.connect(self.open_file)
-
+        self.actionOpen_File.triggered.connect(self.open_file)
         self.setAcceptDrops(True)
 
+        self.graphWidget.setBackground((53, 53, 53))
+        self.graphWidget.GetViewBox().setMenuEnabled(False)
+        self.graphWidget.GetViewBox().setMouseEnabled(x=False, y=False)
+
+        self.Equalizer = Slider()
         self.show()
 
     def dragEnterEvent(self, e):
         if e.mimeData().hasUrls():
             e.acceptProposedAction()
+
+    def play_pause(self):
+        if self.isPlaying:
+            self.isPlaying = False
+            self.playButton.setText('Play')
+            self.player.pause()
+        else:
+            self.isPlaying = True
+            self.playButton.setText('Pause')
+            self.player.play()
+
+    def playlist_toggle(self):
+        if self.listWidget.isHidden():
+            self.listWidget.setHidden(False)
+            self.listWidget.setProperty("showDropIndicator", True)
+            self.showButton.setText('Hide')
+        else:
+            self.listWidget.setHidden(True)
+            self.listWidget.setProperty("showDropIndicator", False)
+            self.showButton.setText('Show')
 
     def dropEvent(self, e):
         for url in e.mimeData().urls():
@@ -102,7 +121,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def open_file(self):
         path, _ = QFileDialog.getOpenFileName(self, "Open file", "",
-                                              "mp3 Audio (*.mp3);mp4 Video (*.mp4);Movie files (*.mov);All files (*.*)")
+                                              "mp3 Audio (*.mp3);mp4 Video (*.mp4);All files (*.*)")
 
         if path:
             self.playlist.addMedia(
@@ -126,13 +145,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if position >= 0:
             self.currentTimeLabel.setText(hhmmss(position))
 
-        # Disable the events to prevent updating triggering a setPosition event (can cause stuttering).
         self.timeSlider.blockSignals(True)
         self.timeSlider.setValue(position)
         self.timeSlider.blockSignals(False)
 
     def playlist_selection_changed(self, ix):
-        # We receive a QItemSelection from selectionChanged.
         i = ix.indexes()[0].row()
         self.playlist.setCurrentIndex(i)
 
@@ -141,22 +158,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ix = self.model.index(i)
             self.listWidget.setCurrentIndex(ix)
 
-    def toggle_viewer(self, state):
-        if state:
-            self.viewer.show()
-        else:
-            self.viewer.hide()
-
     def erroralert(self, *args):
         print(args)
+
+    def ShowEqualizer(self):
+        self.Equalizer.show()
+
+    def mute(self):
+        if self.player.isMuted():
+            self.player.setMuted(False)
+        else:
+            self.player.setMuted(True)
 
 
 if __name__ == '__main__':
     app = QApplication([])
-    app.setApplicationName("Failamp")
+    app.setApplicationName("ThePlayer")
     app.setStyle("Fusion")
-
-    # Fusion dark palette from https://gist.github.com/QuantumCD/6245215.
     palette = QPalette()
     palette.setColor(QPalette.Window, QColor(53, 53, 53))
     palette.setColor(QPalette.WindowText, Qt.white)
