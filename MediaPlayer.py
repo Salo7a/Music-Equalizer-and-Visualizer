@@ -74,7 +74,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionOpen_File.triggered.connect(self.open_file)
         self.setAcceptDrops(True)
 
-        self.graphWidget.setBackground((53, 53, 53))
+        self.graphWidget.setBackground((60, 60, 60))
         self.graphWidget.GetViewBox().setMenuEnabled(False)
         self.graphWidget.GetViewBox().setMouseEnabled(x=False, y=False)
 
