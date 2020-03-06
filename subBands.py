@@ -27,18 +27,16 @@ def FWHM(arr, length):
         middle = middle[:-1]
     while len(middle) < length:
         middle = np.append(middle, [0.5])
-    while len(before) < length:
-        before = np.append([1], before)
-    while len(before) > length:
-        before = before[:-1]
-    while len(after) < length:
-        after = np.append(after, [1])
-    while len(before) > length:
-        after = after[:-1]
-
-    return before, middle, after
+    return FWHMClass(before, middle, after, len(before), len(after))
 
 
 
 
+class FWHMClass:
+    def __init__(self, b, m, a, bl, al):
+        self.before = b
+        self.middle = m
+        self.after = a
+        self.beforeLength = bl
+        self.afterLength = al
 

@@ -3,6 +3,7 @@ import wavio  # https://github.com/WarrenWeckesser/wavio/blob/master/wavio.py
 from PyQt5.QtCore import QTimer
 from scipy.fftpack import *
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 from PyQt5.Qt import Qt
 from PyQt5.QtGui import *
 from subBands import subBands, FWHM
@@ -28,6 +29,7 @@ class WindowingWidget(QWidget):
         self.gainLabels = []
         self.windowComboBoxes = []
         self.selectedWindows = ["Rectangular"] * self.bandsNumber
+        self.threadPool = QThreadPool()
 
         # Setting original data graph
         self.originalLayout = QHBoxLayout()
@@ -184,27 +186,24 @@ class WindowingWidget(QWidget):
         # self.editedpFFTData[index] = self.pfftBands[index] * factorAmp
         # self.editednFFTData[index] = self.nfftBands[index] * factorAmp
 
-        self.editedData[index] = self.amplitudeBands[index] * factorFWHM[1]
-        self.editedpFFTData[index] = self.pfftBands[index] * factorFWHM[1]
-        self.editednFFTData[index] = self.nfftBands[index] * factorFWHM[1]
+        self.editedData[index] = self.amplitudeBands[index] * factorFWHM.middle
+        self.editedpFFTData[index] = self.pfftBands[index] * factorFWHM.middle
+        self.editednFFTData[index] = self.nfftBands[index] * factorFWHM.middle
         if index != 0:
-            self.editedData[index - 1] = self.editedData[index - 1] * factorFWHM[0]
-            self.editedpFFTData[index - 1] = self.editedpFFTData[index - 1] * factorFWHM[0]
-            self.editednFFTData[index - 1] = self.editednFFTData[index - 1] * factorFWHM[0]
+            self.editedData[index - 1][-factorFWHM.beforeLength:] = self.editedData[index - 1][-factorFWHM.beforeLength:] * factorFWHM.before
+            self.editedpFFTData[index - 1][-factorFWHM.beforeLength:] = self.editedpFFTData[index - 1][-factorFWHM.beforeLength:] * factorFWHM.before
+            self.editednFFTData[index - 1][-factorFWHM.beforeLength:] = self.editednFFTData[index - 1][-factorFWHM.beforeLength:] * factorFWHM.before
 
         if index != self.bandsNumber - 1:
-            self.editedData[index + 1] = self.editedData[index + 1] * factorFWHM[2]
-            self.editedpFFTData[index + 1] = self.editedpFFTData[index + 1] * factorFWHM[2]
-            self.editednFFTData[index + 1] = self.editednFFTData[index + 1] * factorFWHM[2]
+            self.editedData[index + 1][:factorFWHM.afterLength] = self.editedData[index + 1][:factorFWHM.afterLength] * factorFWHM.after
+            self.editedpFFTData[index + 1][:factorFWHM.afterLength] = self.editedpFFTData[index + 1][:factorFWHM.afterLength] * factorFWHM.after
+            self.editednFFTData[index + 1][:factorFWHM.afterLength] = self.editednFFTData[index + 1][:factorFWHM.afterLength] * factorFWHM.after
 
-        compressedData = list(itertools.chain.from_iterable(self.editedData))
-        self.editedFreq.UpdatePlot(self.wavClass.freq, compressedData)
-        QApplication.processEvents()
+        timePlotter = TimePlotter(self.plotTime)
+        self.threadPool.start(timePlotter)
+        freqPlotter = FreqPlotter(self.plotFreq)
+        self.threadPool.start(freqPlotter)
 
-        compressedTime = np.append(np.array(list(itertools.chain.from_iterable(self.editedpFFTData))),
-                                   np.flip(np.array(list(itertools.chain.from_iterable(self.editednFFTData)))))
-        self.editedTime.UpdatePlot(self.wavClass.time, data2wav(compressedTime))
-        QApplication.processEvents()
 
     def createNewSong(self, data, name):
         dataAudio = data2wav(data)
@@ -224,7 +223,38 @@ class WindowingWidget(QWidget):
         except:
             pass
 
+    def plotTime(self):
+        compressedTime = np.append(np.array(list(itertools.chain.from_iterable(self.editedpFFTData))),
+                                   np.flip(np.array(list(itertools.chain.from_iterable(self.editednFFTData)))))
+        self.editedTime.UpdatePlot(self.wavClass.time, data2wav(compressedTime))
+
+    def plotFreq(self):
+        compressedData = list(itertools.chain.from_iterable(self.editedData))
+        self.editedFreq.UpdatePlot(self.wavClass.freq, compressedData)
+
+
+class TimePlotter(QRunnable):
+    def __init__(self, plot):
+        super().__init__()
+        self.plot = plot
+
+    @pyqtSlot()
+    def run(self):
+        self.plot()
+
+
+class FreqPlotter(QRunnable):
+    def __init__(self, plot):
+        super().__init__()
+        self.plot = plot
+
+    @pyqtSlot()
+    def run(self):
+        self.plot()
+
+
+
 
 app = QApplication(sys.argv)
-window = WindowingWidget("wavFiles/homer.wav")
+window = WindowingWidget("wavFiles/cello.wav")
 sys.exit(app.exec_())
