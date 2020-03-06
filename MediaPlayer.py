@@ -6,6 +6,7 @@ from PyQt5.QtMultimediaWidgets import *
 
 from MainWindow import Ui_MainWindow
 from Equalizer import Ui_Sliders
+import qtawesome as qta
 
 
 class Slider(Ui_Sliders, QWidget):
@@ -50,12 +51,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.isPlaying = False
         # Connect control buttons/slides for media player.
         self.playButton.pressed.connect(self.play_pause)
-        self.stopButton.pressed.connect(self.player.stop)
+        self.stopButton.pressed.connect(self.stop)
         self.showButton.pressed.connect(self.playlist_toggle)
         self.equalizerButton.pressed.connect(self.ShowEqualizer)
         self.volumeButton.pressed.connect(self.mute)
 
-        self.volumeSlider.valueChanged.connect(self.player.setVolume)
+        self.volumeSlider.valueChanged.connect(self.volumeChanged)
+        self.currentVolume = self.volumeSlider.value()
         self.timeSlider.valueChanged.connect(self.player.setPosition)
 
         # Setup the playlist.
@@ -72,6 +74,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.player.positionChanged.connect(self.update_position)
 
         self.actionOpen_File.triggered.connect(self.open_file)
+        self.files = []
         self.setAcceptDrops(True)
 
         self.graphWidget.setBackground((53, 53, 53))
@@ -86,14 +89,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             e.acceptProposedAction()
 
     def play_pause(self):
-        if self.isPlaying:
-            self.isPlaying = False
-            self.playButton.setText('Play')
-            self.player.pause()
-        else:
-            self.isPlaying = True
-            self.playButton.setText('Pause')
-            self.player.play()
+        if len(self.files) != 0:
+            if self.isPlaying:
+                self.isPlaying = False
+                self.playButton.setIcon(qta.icon('fa5s.play-circle', color='white'))
+                self.player.pause()
+            else:
+                self.isPlaying = True
+                self.playButton.setIcon(qta.icon('fa5s.pause-circle', color='white'))
+                self.player.play()
+
+    def stop(self):
+        self.player.stop()
+        self.isPlaying = False
+        self.playButton.setIcon(qta.icon('fa5s.play-circle', color='white'))
 
     def playlist_toggle(self):
         if self.listWidget.isHidden():
@@ -120,8 +129,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.player.play()
 
     def open_file(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
         path, _ = QFileDialog.getOpenFileName(self, "Open file", "",
-                                              "mp3 Audio (*.mp3);mp4 Video (*.mp4);All files (*.*)")
+                                              "Music Files (*.mp3 *.wav)", options=options)
 
         if path:
             self.playlist.addMedia(
@@ -129,6 +140,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     QUrl.fromLocalFile(path)
                 )
             )
+            self.files.append(path)
 
         self.model.layoutChanged.emit()
 
@@ -164,11 +176,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def ShowEqualizer(self):
         self.Equalizer.show()
 
+    def volumeChanged(self):
+        self.currentVolume = self.volumeSlider.value()
+        self.player.setVolume(self.volumeSlider.value())
+
     def mute(self):
         if self.player.isMuted():
             self.player.setMuted(False)
+            self.volumeButton.setIcon(qta.icon('fa5s.volume-up', color='white'))
+            self.volumeSlider.setEnabled(True)
+            self.volumeSlider.setMaximum(100)
+            self.volumeSlider.setValue(self.currentVolume)
+
+            self.volumeSlider.setProperty("value", 100)
         else:
             self.player.setMuted(True)
+            self.volumeButton.setIcon(qta.icon('fa5s.volume-mute', color='white'))
+            self.volumeSlider.setEnabled(False)
+            self.volumeSlider.setMaximum(0)
 
 
 if __name__ == '__main__':
