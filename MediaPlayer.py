@@ -200,7 +200,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def ShowEqualizer(self):
         if self.player.currentMedia().canonicalUrl().path() != "":
             self.Equalizer = WindowingWidget(self.player.currentMedia().canonicalUrl().path())
+            self.Equalizer.SendPath.connect(self.AddPathToPlaylist)
             self.Equalizer.show()
+
+    def AddPathToPlaylist(self, path):
+        if path:
+            self.playlist.addMedia(
+                QMediaContent(
+                    QUrl.fromLocalFile(path)
+                )
+            )
+            self.files.append(path)
+
+        self.model.layoutChanged.emit()
 
     def volumeChanged(self):
         self.currentVolume = self.volumeSlider.value()
