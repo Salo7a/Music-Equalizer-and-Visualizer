@@ -7,13 +7,12 @@
 # WARNING! All changes made in this file will be lost!
 
 import qtawesome as qta
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt5 import QtCore, QtWidgets
 
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
+        MainWindow.setObjectName("The Player")
         MainWindow.resize(953, 669)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -101,6 +100,10 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.equalizerButton.sizePolicy().hasHeightForWidth())
         self.equalizerButton.setSizePolicy(sizePolicy)
         self.equalizerButton.setObjectName("equalizerButton")
+        fa5_icon = qta.icon('fa5s.adjust', color='white')
+        self.equalizerButton.setIcon(fa5_icon)
+        self.equalizerButton.setFlat(True)
+        self.equalizerButton.setIconSize(QtCore.QSize(40, 40))
         self.horizontalLayout_2.addWidget(self.equalizerButton)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem2)
@@ -144,13 +147,15 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "3SPlayer"))
+        fa5_icon = qta.icon('fa5s.drum-steelpan', color='white')
+        MainWindow.setWindowIcon(fa5_icon)
         self.currentTimeLabel.setText(_translate("MainWindow", "0:00"))
         self.totalTimeLabel.setText(_translate("MainWindow", "0:00"))
         self.showButton.setText(_translate("MainWindow", "Hide"))
         # self.playButton.setText(_translate("MainWindow", "Play"))
         # self.stopButton.setText(_translate("MainWindow", "Stop"))
-        self.equalizerButton.setText(_translate("MainWindow", "Equalizer"))
+        # self.equalizerButton.setText(_translate("MainWindow", "Equalizer"))
         # self.volumeButton.setText(_translate("MainWindow", "Mute"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionOpen_File.setText(_translate("MainWindow", "Open File"))

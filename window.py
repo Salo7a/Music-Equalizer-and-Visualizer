@@ -1,28 +1,25 @@
-import numpy as np
-import wavio  # https://github.com/WarrenWeckesser/wavio/blob/master/wavio.py
-from PyQt5.QtCore import QTimer
-from scipy.fftpack import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.Qt import Qt
-from PyQt5.QtGui import *
-from subBands import subBands, FWHM
-from Graph import *
-from fftFunctions import *
-from copy import copy, deepcopy
-from scipy.io.wavfile import write
 import itertools
 import sys
-import time
+from copy import copy
+
 import simpleaudio as sa
+from PyQt5.Qt import Qt
+from PyQt5.QtCore import QThreadPool, QRunnable, pyqtSlot
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGroupBox, QPushButton, QVBoxLayout, QSlider, QLabel, QComboBox, \
+    QApplication
+
+from Graph import *
+from fftFunctions import *
+from subBands import subBands, FWHM
 
 
 class WindowingWidget(QWidget):
-    def __init__(self, path):
+    def __init__(self, player):
 
         super().__init__()
         self.resize(QtCore.QSize(1000, 700))
-
+        self.player = player
+        self.path = self.player.currentMedia().canonicalUrl().path()
         # Set configurations of the widget
         self.bandsNumber = 10
         self.slidersList = []
@@ -46,7 +43,7 @@ class WindowingWidget(QWidget):
         self.slidersGroupBox.setLayout(self.slidersLayout)
 
         # Reading the data from .wav file and plotting the data
-        self.wavClass = wav2data(path)
+        self.wavClass = wav2data(self.path)
         self.originalTime.setPlot(self.wavClass.time, self.wavClass.data)
         self.originalFreq.setPlot(self.wavClass.freq, self.wavClass.fftPlotting)
         self.freqBands = subBands(self.wavClass.freq, self.bandsNumber)

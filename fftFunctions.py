@@ -1,12 +1,9 @@
 import numpy as np
-import wavio        # https://github.com/WarrenWeckesser/wavio/blob/master/wavio.py
-from  numpy.fft import fft, ifft
-import matplotlib.pyplot as plt
-from scipy.io.wavfile import read, write
+import wavio  # https://github.com/WarrenWeckesser/wavio/blob/master/wavio.py
+from numpy.fft import fft, ifft
 
 
 class wavData():
-
 
     def __init__(self, path):
         self.wavClass = wavio.read(path)
@@ -19,7 +16,6 @@ class wavData():
         factor = np.max(self.data) // maxInt
         self.data = self.data / factor
 
-
         self.length = len(self.data)
 
         self.rate = self.wavClass.rate
@@ -27,11 +23,10 @@ class wavData():
         self.time = np.linspace(0, self.duration, self.length)
         self.freq = np.linspace(0, self.rate / 2, int(self.length / 2))
         self.fftArray = fft(self.data)
-        self.fftArrayPositive = self.fftArray[:self.length//2]
-        self.fftArrayNegative = np.flip(self.fftArray[self.length//2:])
+        self.fftArrayPositive = self.fftArray[:self.length // 2]
+        self.fftArrayNegative = np.flip(self.fftArray[self.length // 2:])
         self.fftArrayAbs = np.abs(self.fftArray)
-        self.fftPlotting = self.fftArrayAbs[: self.length//2]
-
+        self.fftPlotting = self.fftArrayAbs[: self.length // 2]
 
 
 def wav2data(path):
@@ -40,7 +35,7 @@ def wav2data(path):
 
 
 def data2wav(arr):
-    #print(arr)
+    # print(arr)
     data = ifft(arr, len(arr)).real
     return data
 

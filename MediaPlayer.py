@@ -1,20 +1,15 @@
-import vlc
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtMultimedia import *
-from pydub import AudioSegment, playback
-from PyQt5.QtMultimediaWidgets import *
-from wavio import *
-import io
-
-from MainWindow import Ui_MainWindow
-from Equalizer import Ui_Sliders
-import qtawesome as qta
-from Visualizer import *
-from fftFunctions import wavData
-import traceback
+from PyQt5.QtGui import QPalette, QColor
 import sys
+
+import qtawesome as qta
+from PyQt5.QtCore import QAbstractListModel, Qt, QUrl
+from PyQt5.QtGui import QPalette, QColor
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaPlaylist, QMediaContent
+from PyQt5.QtWidgets import QWidget, QMainWindow, QFileDialog, QApplication
+
+from Equalizer import Ui_Sliders
+from MainWindow import Ui_MainWindow
+from Visualizer import *
 
 # Back up the reference to the exceptionhook
 sys._excepthook = sys.excepthook
@@ -216,7 +211,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.volumeSlider.setEnabled(True)
             self.volumeSlider.setMaximum(100)
             self.volumeSlider.setValue(self.currentVolume)
-
             self.volumeSlider.setProperty("value", 100)
         else:
             self.player.setMuted(True)
