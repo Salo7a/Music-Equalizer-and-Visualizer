@@ -6,11 +6,10 @@ from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaPlaylist, QMediaContent
 from PyQt5.QtWidgets import QWidget, QMainWindow, QFileDialog, QApplication
 
+from Equalizer import WindowingWidget
 from EqualizerTest import Ui_Sliders
 from MainWindow import Ui_MainWindow
 from Visualizer import *
-
-f
 
 # Back up the reference to the exceptionhook
 sys._excepthook = sys.excepthook
@@ -98,7 +97,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.graphWidget.GetViewBox().setMouseEnabled(x=False, y=False)
         self.graphWidget.setPlotEQ((42, 130, 218))
 
-        self.Equalizer = Slider()
+        self.Equalizer = QWidget
         self.Visualizer = FFTAnalyser(self.player)
         self.Visualizer.calculated_visual.connect(self.draw)
         self.Visualizer.start()
@@ -199,7 +198,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         print(args)
 
     def ShowEqualizer(self):
-        self.Equalizer.show()
+        if self.player.currentMedia().canonicalUrl().path() != "":
+            self.Equalizer = WindowingWidget(self.player.currentMedia().canonicalUrl().path())
+            self.Equalizer.show()
 
     def volumeChanged(self):
         self.currentVolume = self.volumeSlider.value()

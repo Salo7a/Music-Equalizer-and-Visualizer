@@ -17,7 +17,7 @@ class WindowingWidget(QWidget):
 
         super().__init__()
         self.resize(QtCore.QSize(1000, 700))
-        self.path = path
+        self.path = path[1:]
         # Set configurations of the widget
         self.bandsNumber = 10
         self.slidersList = []
