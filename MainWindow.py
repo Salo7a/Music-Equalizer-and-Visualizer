@@ -6,7 +6,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-
+import qtawesome as qta
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 
@@ -65,7 +65,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.addWidget(self.showButton)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem)
-        self.playButton = QtWidgets.QPushButton(self.centralwidget)
+        fa5_icon = qta.icon('fa5s.play-circle', color='white')
+        self.playButton = QtWidgets.QPushButton(fa5_icon, "", self.centralwidget)
+        self.playButton.setIconSize(QtCore.QSize(40, 40))
+        self.playButton.setFlat(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -76,7 +79,10 @@ class Ui_MainWindow(object):
         self.buttonGroup.setObjectName("buttonGroup")
         self.buttonGroup.addButton(self.playButton)
         self.horizontalLayout_2.addWidget(self.playButton, 0, QtCore.Qt.AlignHCenter)
-        self.stopButton = QtWidgets.QPushButton(self.centralwidget)
+        fa5_icon2 = qta.icon('fa5s.stop-circle', color='white')
+        self.stopButton = QtWidgets.QPushButton(fa5_icon2, "", self.centralwidget)
+        self.stopButton.setIconSize(QtCore.QSize(40, 40))
+        self.stopButton.setFlat(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -98,7 +104,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.addWidget(self.equalizerButton)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem2)
-        self.volumeButton = QtWidgets.QPushButton(self.centralwidget)
+        fa5_icon3 = qta.icon('fa5s.volume-up', color='white')
+        self.volumeButton = QtWidgets.QPushButton(fa5_icon3, "", self.centralwidget)
+        self.volumeButton.setFlat(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -140,10 +148,10 @@ class Ui_MainWindow(object):
         self.currentTimeLabel.setText(_translate("MainWindow", "0:00"))
         self.totalTimeLabel.setText(_translate("MainWindow", "0:00"))
         self.showButton.setText(_translate("MainWindow", "Hide"))
-        self.playButton.setText(_translate("MainWindow", "Play"))
-        self.stopButton.setText(_translate("MainWindow", "Stop"))
+        # self.playButton.setText(_translate("MainWindow", "Play"))
+        # self.stopButton.setText(_translate("MainWindow", "Stop"))
         self.equalizerButton.setText(_translate("MainWindow", "Equalizer"))
-        self.volumeButton.setText(_translate("MainWindow", "Mute"))
+        # self.volumeButton.setText(_translate("MainWindow", "Mute"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionOpen_File.setText(_translate("MainWindow", "Open File"))
 
