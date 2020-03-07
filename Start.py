@@ -1,7 +1,9 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-from Main import Ui_MainWindow
-from Equalizer import Ui_Sliders
 import sys
+
+from PyQt5 import QtCore, QtWidgets
+
+from EqualizerTest import Ui_Sliders
+from Main import Ui_MainWindow
 
 
 class Slider(Ui_Sliders, QtWidgets.QWidget):

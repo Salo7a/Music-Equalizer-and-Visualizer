@@ -1,4 +1,3 @@
-from PyQt5.QtGui import QPalette, QColor
 import sys
 
 import qtawesome as qta
@@ -7,9 +6,11 @@ from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaPlaylist, QMediaContent
 from PyQt5.QtWidgets import QWidget, QMainWindow, QFileDialog, QApplication
 
-from Equalizer import Ui_Sliders
+from EqualizerTest import Ui_Sliders
 from MainWindow import Ui_MainWindow
 from Visualizer import *
+
+f
 
 # Back up the reference to the exceptionhook
 sys._excepthook = sys.excepthook

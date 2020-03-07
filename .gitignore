@@ -116,7 +116,7 @@ venv.bak/
 /pyqt5-qtquick2-example/
 /pyqt5-qtquick2-example/
 .idea/Task 2 - Music Equalizer.iml
-Equalizer.py
+EqualizerTest.py
 Equalizer.ui
 Main.py
 Main.ui
