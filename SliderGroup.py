@@ -1,5 +1,5 @@
 import numpy as np
-import wavio        # https://github.com/WarrenWeckesser/wavio/blob/master/wavio.py
+# import wavio        # https://github.com/WarrenWeckesser/wavio/blob/master/wavio.py
 from PyQt5.QtCore import QTimer
 from scipy.fftpack import *
 from PyQt5.QtWidgets import *

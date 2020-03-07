@@ -1,11 +1,34 @@
+import vlc
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtMultimedia import *
+from pydub import AudioSegment, playback
 from PyQt5.QtMultimediaWidgets import *
+from wavio import *
+import io
 
 from MainWindow import Ui_MainWindow
 from Equalizer import Ui_Sliders
+from Visualizer import *
+from fftFunctions import wavData
+import traceback
+import sys
+
+# Back up the reference to the exceptionhook
+sys._excepthook = sys.excepthook
+
+
+def my_exception_hook(exctype, value, traceback):
+    # Print the error and traceback
+    print(exctype, value, traceback)
+    # Call the normal Exception hook after
+    sys._excepthook(exctype, value, traceback)
+    sys.exit(1)
+
+
+# Set the exception hook to our wrapping function
+sys.excepthook = my_exception_hook
 
 
 class Slider(Ui_Sliders, QWidget):
@@ -15,9 +38,6 @@ class Slider(Ui_Sliders, QWidget):
 
 
 def hhmmss(ms):
-    # s = 1000
-    # m = 60000
-    # h = 360000
     h, r = divmod(ms, 3600000)
     m, r = divmod(r, 60000)
     s, _ = divmod(r, 1000)
@@ -77,9 +97,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.graphWidget.setBackground((60, 60, 60))
         self.graphWidget.GetViewBox().setMenuEnabled(False)
         self.graphWidget.GetViewBox().setMouseEnabled(x=False, y=False)
+        self.graphWidget.setPlotEQ((42, 130, 218))
 
         self.Equalizer = Slider()
+        self.Visualizer = FFTAnalyser(self.player)
+        self.Visualizer.calculated_visual.connect(self.draw)
+        self.Visualizer.start()
+        self.visdata = np.array([])
         self.show()
+
+    def draw(self, visdata):
+        self.visdata = np.array(visdata)
+        self.graphWidget.UpdatePlotEQ(self.visdata)
 
     def dragEnterEvent(self, e):
         if e.mimeData().hasUrls():
@@ -89,10 +118,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.isPlaying:
             self.isPlaying = False
             self.playButton.setText('Play')
+            self.Visualizer.terminate()
             self.player.pause()
         else:
             self.isPlaying = True
             self.playButton.setText('Pause')
+            self.Visualizer.start()
             self.player.play()
 
     def playlist_toggle(self):
@@ -169,6 +200,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.player.setMuted(False)
         else:
             self.player.setMuted(True)
+
+    def closeEvent(self, event):
+        self.Visualizer.terminate()
 
 
 if __name__ == '__main__':

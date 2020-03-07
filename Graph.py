@@ -1,5 +1,6 @@
 from PyQt5 import QtCore
 import pyqtgraph as pg
+from PyQt5.QtGui import QPainter, QColor, QPen
 
 
 class GraphWidget(pg.PlotWidget):
@@ -32,17 +33,28 @@ class GraphWidget(pg.PlotWidget):
         self.curve = self.plot(self.x, self.y, pen=pen, name=self.name)
         self.isSet = True
 
+    def setPlotEQ(self, pen="w"):
+        self.hideAxis("bottom")
+        self.hideAxis("left")
+        self.YRange(0, 0.4)
+        self.color = pen
+        self.curve = self.plot([], pen=pen, name=self.name, fillLevel=-1, brush=QColor(42, 130, 218))
+        self.isSet = True
+
     def UpdatePlot(self, x, y):
         self.x = x
         self.y = y
         self.curve.setData(self.x, self.y)
+
+    def UpdatePlotEQ(self, amp):
+        self.y = amp[:int(len(amp) / 2)]
+        self.curve.setData(self.y)
 
     def XRange(self, min, max):
         self.setXRange(min, max)
 
     def YRange(self, min, max):
         self.setYRange(min, max)
-
 
     def XPlus(self):
         self.curve.getViewBox().scaleBy(s=0.9, y=None)
