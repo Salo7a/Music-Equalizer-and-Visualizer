@@ -1,5 +1,4 @@
 import itertools
-import sys
 from copy import copy
 
 import simpleaudio as sa
@@ -14,12 +13,11 @@ from subBands import subBands, FWHM
 
 
 class WindowingWidget(QWidget):
-    def __init__(self, player):
+    def __init__(self, path):
 
         super().__init__()
         self.resize(QtCore.QSize(1000, 700))
-        self.player = player
-        self.path = self.player.currentMedia().canonicalUrl().path()
+        self.path = path
         # Set configurations of the widget
         self.bandsNumber = 10
         self.slidersList = []
@@ -229,9 +227,6 @@ class FreqPlotter(QRunnable):
     def run(self):
         self.plot()
 
-
-
-
-app = QApplication(sys.argv)
-window = WindowingWidget("wavFiles/cello.wav")
-sys.exit(app.exec_())
+# app = QApplication(sys.argv)
+# window = WindowingWidget("wavFiles/cello.wav")
+# sys.exit(app.exec_())
