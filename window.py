@@ -70,22 +70,6 @@ class WindowingWidget(QWidget):
         self.editedLayout.addWidget(self.editedFreq)
         self.editedBox.setLayout(self.editedLayout)
 
-        # Play and Stop
-        self.sdLayout = QHBoxLayout()
-        self.sdBox = QGroupBox()
-        self.play = QPushButton("Play")
-        self.stop = QPushButton("Stop")
-        self.play.clicked.connect(lambda: self.playArray(
-            np.append(np.array(list(itertools.chain.from_iterable(self.editedpFFTData))),
-                      np.flip(np.array(list(itertools.chain.from_iterable(self.editednFFTData)))))))
-        self.play.clicked.connect(lambda: self.playArray(
-            np.append(np.array(list(itertools.chain.from_iterable(self.editedpFFTData))),
-                      np.flip(np.array(list(itertools.chain.from_iterable(self.editednFFTData)))))))
-        self.stop.clicked.connect(lambda: self.stopArray())
-        self.sdLayout.addWidget(self.play)
-        self.sdLayout.addWidget(self.stop)
-        self.sdBox.setLayout(self.sdLayout)
-
         self.submit = QPushButton("Submit")
         # list(itertools.chain.from_iterable(list2d))
         self.submit.clicked.connect(lambda: self.createNewSong(
@@ -96,7 +80,7 @@ class WindowingWidget(QWidget):
         self.mainLayout.addWidget(self.slidersGroupBox)
         self.mainLayout.addWidget(self.submit)
         self.mainLayout.addWidget(self.editedBox)
-        self.mainLayout.addWidget(self.sdBox)
+     
 
         self.setLayout(self.mainLayout)
         self.show()
@@ -163,32 +147,27 @@ class WindowingWidget(QWidget):
 
         if windowType == "Rectangular":
             factorAmp = [gain] * len(self.amplitudeBands[index])
-            # pfactorData = [gain]*len(self.pfftBands[index])
-            # nfactorData = [gain]*len(self.nfftBands[index])
-
 
         elif windowType == "Hanning":
             factorAmp = np.hanning(len(self.amplitudeBands[index])) * gain
-            # pfactorData = np.hanning(len(self.pfftBands[index])) * gain
-            # nfactorData = np.hanning(len(self.nfftBands[index])) * gain
-
 
         elif windowType == "Hamming":
             factorAmp = np.hamming(len(self.amplitudeBands[index])) * gain
-            # pfactorData = np.hamming(len(self.pfftBands[index])) * gain
-            # nfactorData = np.hamming(len(self.nfftBands[index])) * gain
+
 
         factorFWHM = FWHM(factorAmp, len(self.amplitudeBands[index]))
-        # pDataFWHM = FWHM(pfactorData, len(self.pfftBands[index]))
-        # nDataFWHM = FWHM(nfactorData, len(self.nfftBands[index]))
-
-        # self.editedData[index] = self.amplitudeBands[index] * factorAmp
-        # self.editedpFFTData[index] = self.pfftBands[index] * factorAmp
-        # self.editednFFTData[index] = self.nfftBands[index] * factorAmp
 
         self.editedData[index] = self.amplitudeBands[index] * factorFWHM.middle
         self.editedpFFTData[index] = self.pfftBands[index] * factorFWHM.middle
-        self.editednFFTData[index] = self.nfftBands[index] * factorFWHM.middle
+
+
+        if index == self.bandsNumber-1:
+            self.editednFFTData[index] = self.nfftBands[index] * np.append(factorFWHM.middle, [0.5])
+
+        else:
+            self.editednFFTData[index] = self.nfftBands[index] * factorFWHM.middle
+
+
         if index != 0:
             self.editedData[index - 1][-factorFWHM.beforeLength:] = self.editedData[index - 1][-factorFWHM.beforeLength:] * factorFWHM.before
             self.editedpFFTData[index - 1][-factorFWHM.beforeLength:] = self.editedpFFTData[index - 1][-factorFWHM.beforeLength:] * factorFWHM.before
@@ -199,7 +178,10 @@ class WindowingWidget(QWidget):
             self.editedpFFTData[index + 1][:factorFWHM.afterLength] = self.editedpFFTData[index + 1][:factorFWHM.afterLength] * factorFWHM.after
             self.editednFFTData[index + 1][:factorFWHM.afterLength] = self.editednFFTData[index + 1][:factorFWHM.afterLength] * factorFWHM.after
 
-        timePlotter = TimePlotter(self.plotTime)
+        compressedTime = np.append(np.array(list(itertools.chain.from_iterable(self.editedpFFTData))),
+                                   np.flip(np.array(list(itertools.chain.from_iterable(self.editednFFTData)))))
+
+        timePlotter = TimePlotter(lambda: self.plotTime(compressedTime))
         self.threadPool.start(timePlotter)
         freqPlotter = FreqPlotter(self.plotFreq)
         self.threadPool.start(freqPlotter)
@@ -223,10 +205,8 @@ class WindowingWidget(QWidget):
         except:
             pass
 
-    def plotTime(self):
-        compressedTime = np.append(np.array(list(itertools.chain.from_iterable(self.editedpFFTData))),
-                                   np.flip(np.array(list(itertools.chain.from_iterable(self.editednFFTData)))))
-        self.editedTime.UpdatePlot(self.wavClass.time, data2wav(compressedTime))
+    def plotTime(self, data):
+        self.editedTime.UpdatePlot(self.wavClass.time, data2wav(data))
 
     def plotFreq(self):
         compressedData = list(itertools.chain.from_iterable(self.editedData))

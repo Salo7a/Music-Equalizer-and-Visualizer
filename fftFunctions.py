@@ -43,3 +43,9 @@ def data2wav(arr):
     #print(arr)
     data = ifft(arr, len(arr)).real
     return data
+
+
+
+path = "wavFiles/cello.wav"
+data = wav2data(path)
+print(data.data)

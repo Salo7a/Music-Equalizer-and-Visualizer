@@ -22,7 +22,7 @@ def subBands(arr, subs):
 def FWHM(arr, length):
     before = arr[:round(length/4)]
     middle = arr[round(length/4):round(length/4)+length//2]
-    after = arr[round(3*length/4)+1:]
+    after = arr[round(3*length/4):]
     while len(middle) > length:
         middle = middle[:-1]
     while len(middle) < length:
