@@ -13,6 +13,7 @@ from subBands import subBands, FWHM
 
 
 class WindowingWidget(QWidget):
+    SendPath = QtCore.pyqtSignal(str)
     def __init__(self, path):
 
         super().__init__()
@@ -206,6 +207,10 @@ class WindowingWidget(QWidget):
     def plotFreq(self):
         compressedData = list(itertools.chain.from_iterable(self.editedData))
         self.editedFreq.UpdatePlot(self.wavClass.freq, compressedData)
+
+    @QtCore.pyqtSlot()
+    def AddToPlaylist(self, path):
+        self.SendPath.emit(path)
 
 
 class TimePlotter(QRunnable):
