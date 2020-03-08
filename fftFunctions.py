@@ -20,14 +20,18 @@ class wavData():
         # self.rate = self.wavClass.rate
         
         self.rate, data = wavfile.read(path)
-        self.data = data[:,0]
-        #
+        if data.ndim == 1:
+            self.data = data
+        elif data.ndim == 2:
+            self.data = data[:, 0]
+
         self.length = len(self.data)
-        #
-        #
         self.duration = int(self.length / self.rate)
 
+        # For Ahmed Salah,
         ## Hat3'yar self.data [ et2kd ta5od awerl channel bs [:,0], self.rate, self.duration
+        # No need to change the code below
+
 
         self.time = np.linspace(0, self.duration, self.length)
         self.freq = np.linspace(0, self.rate / 2, int(self.length / 2))
