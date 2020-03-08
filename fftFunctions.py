@@ -1,6 +1,7 @@
 import numpy as np
 import wavio  # https://github.com/WarrenWeckesser/wavio/blob/master/wavio.py
 from numpy.fft import fft, ifft
+import scipy.io.wavfile as wavfile
 
 
 class wavData():
@@ -16,10 +17,18 @@ class wavData():
         factor = np.max(self.data) // maxInt
         self.data = self.data / factor
 
-        self.length = len(self.data)
-
         self.rate = self.wavClass.rate
+        
+        # self.rate, data = wavfile.read(path)
+        # self.data = data[:,0]
+        #
+        self.length = len(self.data)
+        #
+        #
         self.duration = int(self.length / self.rate)
+
+        ## Hat3'yar self.data [ et2kd ta5od awerl channel bs [:,0], self.rate, self.duration
+
         self.time = np.linspace(0, self.duration, self.length)
         self.freq = np.linspace(0, self.rate / 2, int(self.length / 2))
         self.fftArray = fft(self.data)
@@ -37,7 +46,7 @@ def wav2data(path):
 def data2wav(arr):
     # print(arr)
     data = ifft(arr, len(arr)).real
-    return data
+    return data.astype(np.int32)
 
 
 

@@ -1,7 +1,7 @@
 import itertools
 from copy import copy
 
-import simpleaudio as sa
+import sounddevice as sd
 from PyQt5.Qt import Qt
 from PyQt5.QtCore import QThreadPool, QRunnable, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGroupBox, QPushButton, QVBoxLayout, QSlider, QLabel, QComboBox, \
@@ -10,6 +10,8 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGroupBox, QPushButton, QVBoxL
 from Graph import *
 from fftFunctions import *
 from subBands import subBands, FWHM
+import sys
+
 
 
 class WindowingWidget(QWidget):
@@ -72,10 +74,16 @@ class WindowingWidget(QWidget):
         self.submit.clicked.connect(lambda: self.createNewSong(
             np.append(np.array(list(itertools.chain.from_iterable(self.editedpFFTData))),
                       np.flip(np.array(list(itertools.chain.from_iterable(self.editednFFTData))))), "e321s.wav"))
+
+        self.play = QPushButton("Play")
+        self.play.clicked.connect(lambda: self.playSong(np.append(np.array(list(itertools.chain.from_iterable(self.editedpFFTData))),
+                      np.flip(np.array(list(itertools.chain.from_iterable(self.editednFFTData)))))))
+
         self.mainLayout = QVBoxLayout()
         self.mainLayout.addWidget(self.orignalBox)
         self.mainLayout.addWidget(self.slidersGroupBox)
         self.mainLayout.addWidget(self.submit)
+        self.mainLayout.addWidget(self.play)
         self.mainLayout.addWidget(self.editedBox)
 
         self.setLayout(self.mainLayout)
@@ -188,8 +196,9 @@ class WindowingWidget(QWidget):
     def createNewSong(self, data, name):
         dataAudio = data2wav(data)
         print(self.wavClass.rate)
-        wavio.write(name, dataAudio.astype(np.int32), self.wavClass.rate, sampwidth=self.wavClass.width)
-        print("COMPLETE!!!")
+        wavio.write(name, dataAudio.astype(np.int32), self.wavClass.rate, sampwidth=4)
+        self.AddToPlaylist(name)
+
 
     def playArray(self, arr):
         dataAudio = data2wav(arr)
@@ -215,6 +224,14 @@ class WindowingWidget(QWidget):
         self.SendPath.emit(path)
 
 
+    def playSong(self, array):
+        dataAudio = data2wav(array)
+        print()
+        if type(self.wavClass.data[0]) == "<class 'numpy.int16'>":
+            print("ddddd")
+        sd.play(dataAudio.astype(np.int16), self.wavClass.rate)
+
+
 class TimePlotter(QRunnable):
     def __init__(self, plot):
         super().__init__()
@@ -234,6 +251,8 @@ class FreqPlotter(QRunnable):
     def run(self):
         self.plot()
 
-# app = QApplication(sys.argv)
-# window = WindowingWidget("wavFiles/cello.wav")
-# sys.exit(app.exec_())
+
+
+app = QApplication(sys.argv)
+window = WindowingWidget("/wavFiles/ChillingMusic.wav")
+sys.exit(app.exec_())
