@@ -7,20 +7,20 @@ import scipy.io.wavfile as wavfile
 class wavData():
 
     def __init__(self, path):
-        self.wavClass = wavio.read(path)
-        self.width = self.wavClass.sampwidth
-        # print(self.width)
-        # print(self.wavClass.data)
-        self.data = self.wavClass.data[:, 0]
-
-        maxInt = (len(np.unique(self.data)) - 1) // 2
-        factor = np.max(self.data) // maxInt
-        self.data = self.data / factor
-
-        self.rate = self.wavClass.rate
+        # self.wavClass = wavio.read(path)
+        # self.width = self.wavClass.sampwidth
+        # # print(self.width)
+        # # print(self.wavClass.data)
+        # self.data = self.wavClass.data[:, 0]
+        #
+        # maxInt = (len(np.unique(self.data)) - 1) // 2
+        # factor = np.max(self.data) // maxInt
+        # self.data = self.data / factor
+        #
+        # self.rate = self.wavClass.rate
         
-        # self.rate, data = wavfile.read(path)
-        # self.data = data[:,0]
+        self.rate, data = wavfile.read(path)
+        self.data = data[:,0]
         #
         self.length = len(self.data)
         #
