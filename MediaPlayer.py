@@ -97,7 +97,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.graphWidget.GetViewBox().setMouseEnabled(x=False, y=False)
         self.graphWidget.setPlotEQ((42, 130, 218))
 
-        self.Equalizer = QWidget
+
         self.Visualizer = FFTAnalyser(self.player)
         self.Visualizer.calculated_visual.connect(self.draw)
         self.Visualizer.start()
@@ -233,7 +233,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.volumeSlider.setMaximum(0)
 
     def closeEvent(self, event):
-        self.Visualizer.terminate()
+        if self.Visualizer.isRunning():
+            self.Visualizer.exit()
+        event.accept()
 
 
 if __name__ == '__main__':

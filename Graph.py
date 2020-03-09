@@ -1,6 +1,6 @@
-from PyQt5 import QtCore
 import pyqtgraph as pg
-from PyQt5.QtGui import QPainter, QColor, QPen
+from PyQt5 import QtCore
+from PyQt5.QtGui import QBrush, QGradient
 
 
 class GraphWidget(pg.PlotWidget):
@@ -8,6 +8,8 @@ class GraphWidget(pg.PlotWidget):
 
     def __init__(self, **kwargs):
         super(GraphWidget, self).__init__(**kwargs)
+        self.gradient = QGradient(QGradient.DenseWater)
+        self.gradient.setCoordinateMode(QGradient.ObjectBoundingMode)
         self.isSet = False
         self.isLive = False
         self.path = ''
@@ -38,7 +40,7 @@ class GraphWidget(pg.PlotWidget):
         self.hideAxis("left")
         self.YRange(0, 0.4)
         self.color = pen
-        self.curve = self.plot([], pen=pen, name=self.name, fillLevel=-1, brush=QColor(42, 130, 218))
+        self.curve = self.plot([], pen=(0, 0, 0, 0), name=self.name, fillLevel=-1, brush=QBrush(self.gradient))
         self.isSet = True
 
     def UpdatePlot(self, x, y):
