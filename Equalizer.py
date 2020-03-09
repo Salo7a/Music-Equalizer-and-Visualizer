@@ -249,8 +249,8 @@ class WindowingWidget(QWidget):
 
     def closeEvent(self, event):
         sd.stop()
-        event.accept()
         self.threadPool.releaseThread()
+        event.accept()
 
 
 class TimePlotter(QRunnable):
