@@ -1,4 +1,5 @@
 import itertools
+import sys
 from copy import copy
 
 import sounddevice as sd
@@ -10,8 +11,6 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGroupBox, QPushButton, QVBoxL
 from Graph import *
 from fftFunctions import *
 from subBands import subBands, FWHM
-import sys
-
 
 
 class WindowingWidget(QWidget):
@@ -46,8 +45,8 @@ class WindowingWidget(QWidget):
         self.slidersGroupBox.setLayout(self.slidersLayout)
 
         # Reading the data from .wav file and plotting the data
-        self.wavClass = wav2data(self.path)
-        self.originalTime.setPlot(self.wavClass.time, self.wavClass.data)
+        self.wavClass = wavData(self.path)
+        self.originalTime.setPlot(self.wavClass.time, self.wavClass.data.astype(int))
         self.originalFreq.setPlot(self.wavClass.freq, self.wavClass.fftPlotting)
         self.freqBands = subBands(self.wavClass.freq, self.bandsNumber)
         self.amplitudeBands = subBands(self.wavClass.fftPlotting, self.bandsNumber)
@@ -59,10 +58,10 @@ class WindowingWidget(QWidget):
         self.editedBox = QGroupBox()
         self.editedFreq = GraphWidget()
         self.editedTime = GraphWidget()
-        self.editedTime.YRange(np.min(self.wavClass.data), np.max(self.wavClass.data))
+        self.editedTime.YRange(np.min(self.wavClass.data.astype(int)), np.max(self.wavClass.data.astype(int)))
         self.editedFreq.YRange(0, 6 * np.max(self.wavClass.fftPlotting))
         self.editedFreq.setPlot(self.wavClass.freq, self.wavClass.fftPlotting, pen='r')
-        self.editedTime.setPlot(self.wavClass.time, self.wavClass.data, pen='r')
+        self.editedTime.setPlot(self.wavClass.time, self.wavClass.data.astype(int), pen='r')
         self.editedData = copy(self.amplitudeBands)
         self.editedpFFTData = copy(self.pfftBands)
         self.editednFFTData = copy(self.nfftBands)
@@ -251,6 +250,7 @@ class WindowingWidget(QWidget):
     def closeEvent(self, event):
         sd.stop()
         event.accept()
+        self.threadPool.releaseThread()
 
 
 class TimePlotter(QRunnable):
