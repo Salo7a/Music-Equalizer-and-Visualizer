@@ -63,10 +63,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.player.error.connect(self.erroralert)
         self.player.play()
-        self.isPlaying = False
+        self.player.stateChanged.connect(self.Set_Icons)
         # Connect control buttons/slides for media player.
         self.playButton.pressed.connect(self.play_pause)
-        self.stopButton.pressed.connect(self.stop)
+        self.stopButton.pressed.connect(self.player.stop)
         self.showButton.pressed.connect(self.playlist_toggle)
         self.equalizerButton.pressed.connect(self.ShowEqualizer)
         self.volumeButton.pressed.connect(self.mute)
@@ -113,30 +113,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             e.acceptProposedAction()
 
     def play_pause(self):
-        if len(self.files) != 0:
-            if self.isPlaying:
-                self.isPlaying = False
-                self.playButton.setIcon(qta.icon('fa5s.play-circle', color='white'))
-                self.player.pause()
-            else:
-                self.isPlaying = True
-                self.playButton.setIcon(qta.icon('fa5s.pause-circle', color='white'))
-                self.player.play()
+        if self.player.state() == QMediaPlayer.PlayingState:
+            self.player.pause()
+        else:
+            self.player.play()
 
-    def stop(self):
-        self.player.stop()
-        self.isPlaying = False
-        self.playButton.setIcon(qta.icon('fa5s.play-circle', color='white'))
+    def Set_Icons(self, state):
+        if state == QMediaPlayer.StoppedState:
+            self.stopButton.setIcon(
+                qta.icon('fa5s.stop-circle', active='fa5s.stop-circle', color='white', color_active='grey'))
+            self.playButton.setIcon(qta.icon('fa5s.play-circle', color='white'))
+        elif state == QMediaPlayer.PlayingState:
+            self.playButton.setIcon(qta.icon('fa5s.pause-circle', color='white'))
+        elif state == QMediaPlayer.PausedState:
+            self.playButton.setIcon(qta.icon('fa5s.play-circle', color='white'))
 
     def playlist_toggle(self):
         if self.listWidget.isHidden():
             self.listWidget.setHidden(False)
             self.listWidget.setProperty("showDropIndicator", True)
-            self.showButton.setText('Hide')
+            self.showButton.setIcon(qta.icon('fa5s.eye-slash', color='white'))
         else:
             self.listWidget.setHidden(True)
             self.listWidget.setProperty("showDropIndicator", False)
-            self.showButton.setText('Show')
+            self.showButton.setIcon(qta.icon('fa5s.list-ul', color='white'))
 
     def dropEvent(self, e):
         for url in e.mimeData().urls():
@@ -164,9 +164,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     QUrl.fromLocalFile(path)
                 )
             )
-            self.files.append(path)
+            self.files.append(QMediaContent(
+                QUrl.fromLocalFile(path)
+            ))
 
         self.model.layoutChanged.emit()
+
+    # def contextMenuEvent(self, event):
+    # contextMenu = QMenu(self)
+    # graph = contextMenu.addAction("Show Graph")
 
     def update_duration(self, duration):
         print("!", duration)
