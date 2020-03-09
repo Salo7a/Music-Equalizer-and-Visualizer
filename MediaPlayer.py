@@ -63,10 +63,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.player.error.connect(self.erroralert)
         self.player.play()
-        self.isPlaying = False
+        self.player.stateChanged.connect(self.Set_Icons)
+       # self.player.volumeChanged.connect(self.prev_volume)
         # Connect control buttons/slides for media player.
         self.playButton.pressed.connect(self.play_pause)
-        self.stopButton.pressed.connect(self.stop)
+        self.stopButton.pressed.connect(self.player.stop)
         self.showButton.pressed.connect(self.playlist_toggle)
         self.equalizerButton.pressed.connect(self.ShowEqualizer)
         self.volumeButton.pressed.connect(self.mute)
@@ -113,30 +114,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             e.acceptProposedAction()
 
     def play_pause(self):
-        if len(self.files) != 0:
-            if self.isPlaying:
-                self.isPlaying = False
-                self.playButton.setIcon(qta.icon('fa5s.play-circle', color='white'))
-                self.player.pause()
-            else:
-                self.isPlaying = True
-                self.playButton.setIcon(qta.icon('fa5s.pause-circle', color='white'))
-                self.player.play()
+        if self.player.state() == QMediaPlayer.PlayingState:
+            self.player.pause()
+        else:
+            self.player.play()
 
-    def stop(self):
-        self.player.stop()
-        self.isPlaying = False
-        self.playButton.setIcon(qta.icon('fa5s.play-circle', color='white'))
+    def Set_Icons(self, state):
+        if state == QMediaPlayer.StoppedState:
+            self.stopButton.setIcon(
+                qta.icon('fa5s.stop-circle', active='fa5s.stop-circle', color='white', color_active='grey'))
+            self.playButton.setIcon(qta.icon('fa5s.play-circle', color='white'))
+            self.playButton.setToolTip('Play')
+        elif state == QMediaPlayer.PlayingState:
+            self.playButton.setIcon(qta.icon('fa5s.pause-circle', color='white'))
+            self.playButton.setToolTip('Pause')
+        elif state == QMediaPlayer.PausedState:
+            self.playButton.setIcon(qta.icon('fa5s.play-circle', color='white'))
+            self.playButton.setToolTip('Play')
 
     def playlist_toggle(self):
         if self.listWidget.isHidden():
             self.listWidget.setHidden(False)
             self.listWidget.setProperty("showDropIndicator", True)
-            self.showButton.setText('Hide')
+            self.showButton.setIcon(qta.icon('fa5s.eye-slash', color='white'))
+            self.showButton.setToolTip('Hide Playlist')
         else:
             self.listWidget.setHidden(True)
             self.listWidget.setProperty("showDropIndicator", False)
-            self.showButton.setText('Show')
+            self.showButton.setIcon(qta.icon('fa5s.list-ul', color='white'))
+            self.showButton.setToolTip('Show Playlist')
 
     def dropEvent(self, e):
         for url in e.mimeData().urls():
@@ -164,9 +170,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     QUrl.fromLocalFile(path)
                 )
             )
-            self.files.append(path)
+            self.files.append(QMediaContent(
+                QUrl.fromLocalFile(path)
+            ))
 
         self.model.layoutChanged.emit()
+
+    # def contextMenuEvent(self, event):
+    # contextMenu = QMenu(self)
+    # graph = contextMenu.addAction("Show Graph")
 
     def update_duration(self, duration):
         print("!", duration)
@@ -222,15 +234,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.player.isMuted():
             self.player.setMuted(False)
             self.volumeButton.setIcon(qta.icon('fa5s.volume-up', color='white'))
+            self.volumeButton.setToolTip('Mute')
             self.volumeSlider.setEnabled(True)
-            self.volumeSlider.setMaximum(100)
-            self.volumeSlider.setValue(self.currentVolume)
-            self.volumeSlider.setProperty("value", 100)
         else:
             self.player.setMuted(True)
             self.volumeButton.setIcon(qta.icon('fa5s.volume-mute', color='white'))
+            self.volumeButton.setToolTip('Unmute')
             self.volumeSlider.setEnabled(False)
-            self.volumeSlider.setMaximum(0)
 
     def closeEvent(self, event):
         if self.Visualizer.isRunning():
