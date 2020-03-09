@@ -1,15 +1,17 @@
 import itertools
 from copy import copy
 
-import simpleaudio as sa
+import sounddevice as sd
 from PyQt5.Qt import Qt
 from PyQt5.QtCore import QThreadPool, QRunnable, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGroupBox, QPushButton, QVBoxLayout, QSlider, QLabel, QComboBox, \
-    QApplication
+    QApplication, QFileDialog
 
 from Graph import *
 from fftFunctions import *
 from subBands import subBands, FWHM
+import sys
+
 
 
 class WindowingWidget(QWidget):
@@ -27,6 +29,7 @@ class WindowingWidget(QWidget):
         self.windowComboBoxes = []
         self.selectedWindows = ["Rectangular"] * self.bandsNumber
         self.threadPool = QThreadPool()
+        app.aboutToQuit.connect(self.closeEvent)
 
         # Setting original data graph
         self.originalLayout = QHBoxLayout()
@@ -72,10 +75,26 @@ class WindowingWidget(QWidget):
         self.submit.clicked.connect(lambda: self.createNewSong(
             np.append(np.array(list(itertools.chain.from_iterable(self.editedpFFTData))),
                       np.flip(np.array(list(itertools.chain.from_iterable(self.editednFFTData))))), "e321s.wav"))
+
+        self.play = QPushButton("Play")
+        self.play.clicked.connect(lambda: self.playSong(np.append(np.array(list(itertools.chain.from_iterable(self.editedpFFTData))),
+                      np.flip(np.array(list(itertools.chain.from_iterable(self.editednFFTData)))))))
+
+        self.stop = QPushButton("Stop")
+        self.stop.clicked.connect(lambda: sd.stop())
+
         self.mainLayout = QVBoxLayout()
         self.mainLayout.addWidget(self.orignalBox)
         self.mainLayout.addWidget(self.slidersGroupBox)
         self.mainLayout.addWidget(self.submit)
+
+        self.playPauseLayout = QHBoxLayout()
+        self.playPauseLayout.addWidget(self.play)
+        self.playPauseLayout.addWidget(self.stop)
+        self.playPauseBox = QGroupBox()
+        self.playPauseBox.setLayout(self.playPauseLayout)
+
+        self.mainLayout.addWidget(self.playPauseBox)
         self.mainLayout.addWidget(self.editedBox)
 
         self.setLayout(self.mainLayout)
@@ -91,8 +110,8 @@ class WindowingWidget(QWidget):
             slider.setTickPosition(QSlider.TicksBelow)
             slider.setTickInterval(1)
             slider.setValue(0)
-            slider.setMinimum(-30)
-            slider.setMaximum(30)
+            slider.setMinimum(-10)
+            slider.setMaximum(10)
             label = QLabel()
             label.setText("0  dB")
             self.gainLabels.append(label)
@@ -186,10 +205,17 @@ class WindowingWidget(QWidget):
         self.threadPool.start(freqPlotter)
 
     def createNewSong(self, data, name):
-        dataAudio = data2wav(data)
-        print(self.wavClass.rate)
-        wavio.write(name, dataAudio.astype(np.int32), self.wavClass.rate, sampwidth=self.wavClass.width)
-        print("COMPLETE!!!")
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog # Qt's builtin File Dialogue
+        fileName, _ = QFileDialog.getSaveFileName(self, "Save", "", "All Files (*.*)", options=options)
+        if fileName:
+            dataAudio = data2wav(data)
+            print(self.wavClass.rate)
+            wavio.write(fileName, dataAudio.astype(np.int32), self.wavClass.rate, sampwidth=4)
+            self.AddToPlaylist(fileName)
+
+
+
 
     def playArray(self, arr):
         dataAudio = data2wav(arr)
@@ -215,6 +241,18 @@ class WindowingWidget(QWidget):
         self.SendPath.emit(path)
 
 
+    def playSong(self, array):
+        dataAudio = data2wav(array)
+        print()
+        if type(self.wavClass.data[0]) == "<class 'numpy.int16'>":
+            print("ddddd")
+        sd.play(dataAudio.astype(np.int16), self.wavClass.rate)
+
+    def closeEvent(self, event):
+        sd.stop()
+        event.accept()
+
+
 class TimePlotter(QRunnable):
     def __init__(self, plot):
         super().__init__()
@@ -234,6 +272,8 @@ class FreqPlotter(QRunnable):
     def run(self):
         self.plot()
 
-# app = QApplication(sys.argv)
-# window = WindowingWidget("wavFiles/cello.wav")
+
+
+app = QApplication(sys.argv)
+# window = WindowingWidget("/wavFiles/ChillingMusic.wav")
 # sys.exit(app.exec_())
