@@ -1,8 +1,9 @@
-import time
 import os
-from PyQt5 import QtCore
-from pydub import AudioSegment, playback
+import time
+
 import numpy as np
+from PyQt5 import QtCore
+from pydub import AudioSegment
 from scipy.ndimage.filters import gaussian_filter1d
 
 
@@ -19,7 +20,7 @@ class FFTAnalyser(QtCore.QThread):
 
         self.resolution = 120
         self.visual_delta_threshold = 1200
-        self.sensitivity = 5
+        self.sensitivity = 7
 
     def reset_media(self):
         """Resets the media to the currently playing song."""

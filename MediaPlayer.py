@@ -243,8 +243,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.volumeSlider.setEnabled(False)
 
     def closeEvent(self, event):
-        if self.Visualizer.isRunning():
-            self.Visualizer.exit()
+        self.Visualizer.terminate()
         event.accept()
 
 

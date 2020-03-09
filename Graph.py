@@ -38,7 +38,8 @@ class GraphWidget(pg.PlotWidget):
     def setPlotEQ(self, pen="w"):
         self.hideAxis("bottom")
         self.hideAxis("left")
-        self.YRange(0, 0.4)
+        self.YRange(0, 0.6)
+        self.XRange(4, 100)
         self.color = pen
         self.curve = self.plot([], pen=(0, 0, 0, 0), name=self.name, fillLevel=-1, brush=QBrush(self.gradient))
         self.isSet = True
