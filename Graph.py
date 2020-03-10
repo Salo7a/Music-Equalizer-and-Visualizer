@@ -1,10 +1,8 @@
 import pyqtgraph as pg
-from PyQt5 import QtCore
 from PyQt5.QtGui import QBrush, QGradient
 
 
 class GraphWidget(pg.PlotWidget):
-    resized = QtCore.pyqtSignal()
 
     def __init__(self, **kwargs):
         super(GraphWidget, self).__init__(**kwargs)
@@ -116,5 +114,85 @@ class GraphWidget(pg.PlotWidget):
     def GetViewBox(self):
         return self.curve.getViewBox()
 
-    def Remove(self):
-            return self.scene().removeItem(0)
+
+class MultiGraph(pg.PlotWidget):
+
+    def __init__(self, **kwargs):
+        super(MultiGraph, self).__init__(**kwargs)
+        self.name = list()
+        self.data = list()
+        self.color = list()
+        self.x = list()
+        self.y = list()
+        self.width = self.size().width()
+        self.height = self.size().height()
+        self.curves = list()
+        self.resized.connect(self.resizer)
+        self.i = 0
+
+    def AddPlot(self, x, y, name="", pen="w"):
+        if name != "":
+            self.name = name
+        self.color.append(pen)
+        self.x.append(x)
+        self.y.append(y)
+        self.curves.append(self.plot(self.x[-1], self.y[-1], pen=pen, name=self.name))
+
+    def UpdatePlot(self, x, y, i):
+        self.x[i] = x
+        self.y[i] = y
+        self.curves[i].setData(self.x[i], self.y[i])
+
+    def XPlus(self):
+        self.curves[0].getViewBox().scaleBy(s=0.9, y=None)
+
+    def XMinus(self):
+        self.curves[0].getViewBox().scaleBy(s=1.1, y=None)
+
+    def YPlus(self):
+        # self.height = self.size().height()
+        # if len(self.curves) == 0:
+        #     ax = self.getAxis('left').range
+        #     self.setXRange(int(ax[0] * 0.9 / 2), int(ax[1] * 0.9 / 2))
+        # else:
+        self.curves[0].getViewBox().scaleBy(s=0.9, x=None)
+
+    def YMinus(self):
+        # self.height = self.size().height()
+        # if len(self.curves) == 0:
+        #     ax = self.getAxis('left').range
+        #     self.setXRange(int(ax[0] * 1.1 / 2), int(ax[1] * 1.1 / 2))
+        # else:
+        self.curves[0].getViewBox().scaleBy(s=1.1, x=None)
+
+    def ZoomIn(self):
+        self.XPlus()
+        self.YPlus()
+
+    def ZoomOut(self):
+        self.XMinus()
+        self.YMinus()
+
+    def RemovePlot(self, x):
+        if x < len(self.curves):
+            self.removeItem(self.curves[x])
+            self.legend.removeItem(self.name[x])
+            del self.curves[x]
+            del self.name[x]
+            del self.data[x]
+            del self.color[x]
+            print(self.name)
+            # self.UpdateLegend()
+
+    def GetLen(self):
+        return len(self.curves)
+
+    def HidePlot(self, x):
+        if x < len(self.curves):
+            self.removeItem(self.curves[x])
+            self.legend.removeItem(self.name[x])
+
+    def ShowPlot(self, x):
+        if x < len(self.curves):
+            if self.curves[x] not in self.getPlotItem().items:
+                self.addItem(self.curves[x])
