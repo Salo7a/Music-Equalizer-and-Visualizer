@@ -5,9 +5,11 @@ from copy import copy
 import sounddevice as sd
 import wavio
 from PyQt5.Qt import Qt
+from PyQt5 import  QtCore
 from PyQt5.QtCore import QThreadPool, QRunnable, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGroupBox, QPushButton, QVBoxLayout, QSlider, QLabel, QComboBox, \
     QApplication, QFileDialog
+
 
 from Graph import *
 from fftFunctions import *
@@ -46,7 +48,7 @@ class WindowingWidget(QWidget):
         app.aboutToQuit.connect(self.closeEvent)
 
         self.selectedChannel = 0
-        self.changeButton = QPushButton("CHANGE")
+        self.changeButton = QPushButton("Change to Channel 2")
         self.changeButton.clicked.connect(self.channelChanged)
 
         # Setting original data graph
@@ -160,9 +162,11 @@ class WindowingWidget(QWidget):
     def channelChanged(self):
         if self.selectedChannel == 0:
             self.selectedChannel = 1
+            self.changeButton.setText("Change to Channel 1")
             pen = 'b'
         elif self.selectedChannel == 1:
             self.selectedChannel = 0
+            self.changeButton.setText("Change to Channel 2")
             pen = 'r'
         for i in range(10):
             self.slidersList[i].setValue(self.channels[self.selectedChannel].gains[i])
@@ -314,5 +318,5 @@ class FreqPlotter(QRunnable):
 
 
 app = QApplication(sys.argv)
-window = WindowingWidget("/wavFiles/ChillingMusic.wav")
+window = WindowingWidget("/wavFiles/march.wav")
 sys.exit(app.exec_())
