@@ -115,3 +115,6 @@ class GraphWidget(pg.PlotWidget):
 
     def GetViewBox(self):
         return self.curve.getViewBox()
+
+    def Remove(self):
+            return self.scene().removeItem(0)
