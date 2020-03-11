@@ -127,7 +127,6 @@ class MultiGraph(pg.PlotWidget):
         self.width = self.size().width()
         self.height = self.size().height()
         self.curves = list()
-        self.resized.connect(self.resizer)
         self.i = 0
 
     def AddPlot(self, x, y, name="", pen="w"):
