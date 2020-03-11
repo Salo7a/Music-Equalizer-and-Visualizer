@@ -102,6 +102,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.Visualizer = FFTAnalyser(self.player)
         self.Visualizer.calculated_visual.connect(self.draw)
         self.Visualizer.start()
+        self.Equalizer = QWidget()
         self.visdata = np.array([])
         self.show()
 
@@ -244,7 +245,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def closeEvent(self, event):
         self.Visualizer.terminate()
-        event.accept()
+        if self.Equalizer.isVisible():
+            self.Equalizer.close()
 
 
 if __name__ == '__main__':
