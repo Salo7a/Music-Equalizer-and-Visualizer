@@ -7,8 +7,7 @@ import wavio
 from PyQt5.Qt import Qt
 from PyQt5 import QtCore
 from PyQt5.QtCore import QThreadPool, QRunnable, pyqtSlot
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGroupBox, QPushButton, QVBoxLayout, QSlider, QLabel, QComboBox, \
-    QApplication, QFileDialog
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGroupBox, QPushButton, QVBoxLayout, QSlider, QLabel, QComboBox, QApplication, QFileDialog
 
 from Graph import *
 from fftFunctions import *
@@ -256,26 +255,14 @@ class WindowingWidget(QWidget):
                                                                    index] * factorFWHM.middle
 
         if index != 0:
-            self.editedData[self.selectedChannel][index - 1][-factorFWHM.beforeLength:] = \
-            self.editedData[self.selectedChannel][index - 1][
-            -factorFWHM.beforeLength:] * factorFWHM.before
-            self.editedpFFTData[self.selectedChannel][index - 1][-factorFWHM.beforeLength:] = \
-            self.editedpFFTData[self.selectedChannel][index - 1][
-            -factorFWHM.beforeLength:] * factorFWHM.before
-            self.editednFFTData[self.selectedChannel][index - 1][-factorFWHM.beforeLength:] = \
-            self.editednFFTData[self.selectedChannel][index - 1][
-            -factorFWHM.beforeLength:] * factorFWHM.before
+            self.editedData[self.selectedChannel][index - 1][-factorFWHM.beforeLength:] = self.editedData[self.selectedChannel][index - 1][-factorFWHM.beforeLength:] * factorFWHM.before
+            self.editedpFFTData[self.selectedChannel][index - 1][-factorFWHM.beforeLength:] = self.editedpFFTData[self.selectedChannel][index - 1][-factorFWHM.beforeLength:] * factorFWHM.before
+            self.editednFFTData[self.selectedChannel][index - 1][-factorFWHM.beforeLength:] = self.editednFFTData[self.selectedChannel][index - 1][-factorFWHM.beforeLength:] * factorFWHM.before
 
         if index != self.bandsNumber - 1:
-            self.editedData[self.selectedChannel][index + 1][:factorFWHM.afterLength] = \
-            self.editedData[self.selectedChannel][index + 1][
-            :factorFWHM.afterLength] * factorFWHM.after
-            self.editedpFFTData[self.selectedChannel][index + 1][:factorFWHM.afterLength] = \
-            self.editedpFFTData[self.selectedChannel][index + 1][
-            :factorFWHM.afterLength] * factorFWHM.after
-            self.editednFFTData[self.selectedChannel][index + 1][:factorFWHM.afterLength] = \
-            self.editednFFTData[self.selectedChannel][index + 1][
-            :factorFWHM.afterLength] * factorFWHM.after
+            self.editedData[self.selectedChannel][index + 1][:factorFWHM.afterLength] = self.editedData[self.selectedChannel][index + 1][:factorFWHM.afterLength] * factorFWHM.after
+            self.editedpFFTData[self.selectedChannel][index + 1][:factorFWHM.afterLength] = self.editedpFFTData[self.selectedChannel][index + 1][:factorFWHM.afterLength] * factorFWHM.after
+            self.editednFFTData[self.selectedChannel][index + 1][:factorFWHM.afterLength] = self.editednFFTData[self.selectedChannel][index + 1][:factorFWHM.afterLength] * factorFWHM.after
 
         compressedTime = np.append(
             np.array(list(itertools.chain.from_iterable(self.editedpFFTData[self.selectedChannel]))),
