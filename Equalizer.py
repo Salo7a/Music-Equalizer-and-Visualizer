@@ -40,7 +40,7 @@ class WindowingWidget(QWidget):
         self.slidersList = []
         self.gainLabels = []
         self.windowComboBoxes = []
-        self.selectedWindows = ["Rectangular"] * self.bandsNumber
+        self.selectedWindows = [ ["Rectangular"] * self.bandsNumber, ["Rectangular"] * self.bandsNumber ]
         self.threadPool = QThreadPool()
         app.aboutToQuit.connect(self.closeEvent)
 
@@ -191,6 +191,16 @@ class WindowingWidget(QWidget):
         for i in range(10):
             self.slidersList[i].setValue(self.channels[self.selectedChannel].gains[i])
             self.gainLabels[i].setText(str(self.channels[self.selectedChannel].gains[i]) + " dB")
+            index = 0
+            if self.selectedWindows[self.selectedChannel][i] == "Rectangular":
+                index = 0
+            elif self.selectedWindows[self.selectedChannel][i] == "Hamming":
+                index = 1
+            elif self.selectedWindows[self.selectedChannel][i] == "Hanning":
+                index = 2
+            self.windowComboBoxes[i].setCurrentIndex(index)
+
+
 
         self.editedTime.UpdatePlot([], [])
         self.editedFreq.UpdatePlot([], [])
@@ -208,9 +218,10 @@ class WindowingWidget(QWidget):
         # self.editedFreq.setPlot(self.channels[self.selectedChannel].wavClass.freq, compressedData)
 
     def windowSelected(self, index):
-        self.selectedWindows[index] = self.windowComboBoxes[index].currentText()
+        self.selectedWindows[self.selectedChannel][index] = self.windowComboBoxes[index].currentText()
         # print(self.selectedWindows[index], index)
         self.sliderMoved(index, self.gainLabels[index])
+
 
     def sliderMoved(self, index, label):
         gainDB = self.slidersList[index].value()
@@ -227,7 +238,7 @@ class WindowingWidget(QWidget):
         factorAmp = 1
         pfactorData = 1
         nfactorData = 1
-        windowType = self.selectedWindows[index]
+        windowType = self.selectedWindows[self.selectedChannel][index]
 
         if windowType == "Rectangular":
             factorAmp = [gain] * len(self.channels[self.selectedChannel].amplitudeBands[index])
