@@ -4,7 +4,7 @@ Sound equalizer is a basic tool in the music industry. It also serves in several
 
 Run ```MainWindow.py``` to run the GUI
 
-In collabration with [Ahmed Salah](https://github.com/Salo7a) and [Nancy Salah](https://github.com/NancySalah)
+In collabration with [Ahmed Khaled](https://github.com/AhmedKhaled8) and [Nancy Salah](https://github.com/NancySalah)
 
 - 10 equalizer bands. The default gain of each when opening a new signal is 1. In dividing the sub-bands, the user can choose, and change on-the-fly, from a set of windows (rectangular, Hamming, Hanning).
 
